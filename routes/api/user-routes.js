@@ -61,6 +61,7 @@ router.put("/:id", (req, res) => {
   // just use 'req.body' instead
 
   User.update(req.body, {
+    individualHooks: true,
     where: {
       id: req.params.id,
     },
