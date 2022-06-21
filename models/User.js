@@ -10,7 +10,12 @@ const bcrypt = require('bcrypt');
 const { update } = require("lodash");
 
 // create our User model
-class User extends Model {}
+class User extends Model {
+  // set up method to run on instance data (per user) to check password
+  checkPassword(loginPw) {
+    return bcrypt.compareSync(loginPw, this.password);
+  }
+}
 
 // define table columns and configuration, 'user' is the name of the model
 // the model will be stored in sequelize.models under this name
