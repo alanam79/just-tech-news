@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Post, User } = require("../../models");
+const { Post, User, Vote } = require("../../models");
 
 // get all users
 // get all users
@@ -7,7 +7,7 @@ router.get("/", (req, res) => {
   Post.findAll({
     attributes: ["id", "post_url", "title", "created_at"],
     // this is a nested array below
-    order: [['created_at', 'DESC']],
+    order: [["created_at", "DESC"]],
     include: [
       {
         model: User,
@@ -63,6 +63,17 @@ router.post("/", (req, res) => {
       console.log(err);
       res.status(500).json(err);
     });
+});
+
+// put /api/post/upvote, must be put before /:id or express.js
+// will think upvote is a valid parameter of /:id
+router.put("/upvote", (req, res) => {
+  Vote.create({
+    user_id: req.body.user_id,
+    post_id: req.body.post_id,
+  })
+    .then((dbPostData) => res.json(dbPostData))
+    .catch((err) => res.jeson(err));
 });
 
 //   update post title
