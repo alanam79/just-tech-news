@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { User } = require("../../models");
+const { User, Post, Vote } = require("../../models");
 
 // GET /api/users
 router.get("/", (req, res) => {
@@ -16,25 +16,35 @@ router.get("/", (req, res) => {
 });
 
 // GET /api/users/1
-router.get("/:id", (req, res) => {
+router.get('/:id', (req, res) => {
   User.findOne({
-    // password is in an array in case we want to exclude other columns
     attributes: { exclude: ['password'] },
-    // where is the argument being passed into the findOne method
     where: {
-      id: req.params.id,
+      id: req.params.id
     },
+    include: [
+      {
+        model: Post,
+        attributes: ['id', 'title', 'post_url', 'created_at']
+      },
+      {
+        model: Post,
+        attributes: ['title'],
+        through: Vote,
+        as: 'voted_posts'
+      }
+    ]
   })
-    .then((dbUserData) => {
+    .then(dbUserData => {
       if (!dbUserData) {
-        res.status(404).json({ message: "No user found with this id" });
+        res.status(404).json({ message: 'No user found with this id' });
         return;
       }
       res.json(dbUserData);
     })
-    .catch((err) => {
+    .catch(err => {
       console.log(err);
-      resstatus(500).json.err;
+      res.status(500).json(err);
     });
 });
 
@@ -54,7 +64,7 @@ router.post("/", (req, res) => {
 });
 
   router.post('/login', (req, res) => {
-      // Query operation, this validaates the login, 
+      // Query operation, this validates the login, 
   // expects {email: 'lernantino@gmail.com', password: 'password1234'}
     User.findOne({
       where: {
