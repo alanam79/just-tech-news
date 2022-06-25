@@ -48,4 +48,9 @@ router.get("/", (req, res) => {
     });
 });
 
+// render login screen
+router.get("/login", (req, res) => {
+  res.render("login");
+});
+
 module.exports = router;
