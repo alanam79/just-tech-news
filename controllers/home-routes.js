@@ -53,7 +53,7 @@ router.get("/", (req, res) => {
 });
 
 // render login screen
-router.get("/login", (req, res) => {
+router.get("/", (req, res) => {
   // check for a session and redirect to the homepage if one exists
   if (req.session.loggedIn) {
     res.redirect("/");
