@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const sequelize = require("../config/connection");
-const { Post, User, Comment } = require("../models");
+const { Post, User, Comment, Vote } = require("../models");
 
+// get all posts for homepage
 router.get("/", (req, res) => {
-  console.log(req.session);
+  console.log("======================");
   Post.findAll({
     attributes: [
       "id",
@@ -11,8 +12,6 @@ router.get("/", (req, res) => {
       "title",
       "created_at",
       [
-        // Sequelize provides us with a special method called .literal() that allows us
-        // to run regular SQL queries from within the Sequelize method-based queries.
         sequelize.literal(
           "(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)"
         ),
@@ -35,16 +34,12 @@ router.get("/", (req, res) => {
     ],
   })
     .then((dbPostData) => {
-      // We need the entire array of posts to be in the template. That also means we'll need to serialize the entire array.
       const posts = dbPostData.map((post) => post.get({ plain: true }));
-      // console.log(dbPostData[0]); --testing one post information
-      // res.render("homepage", dbPostData[0].get({ plain: true })); --pass a single post object into the homepage template
-      // If you want to get just the data with your attributes as keys, use get({plain: true})
+
       res.render("homepage", {
         posts,
         loggedIn: req.session.loggedIn,
       });
-      // above adds the array to an object and continue passing an object to the template.
     })
     .catch((err) => {
       console.log(err);
@@ -52,17 +47,7 @@ router.get("/", (req, res) => {
     });
 });
 
-// render login screen
-router.get("/login", (req, res) => {
-  // check for a session and redirect to the homepage if one exists
-  if (req.session.loggedIn) {
-    res.redirect("/");
-    return;
-  }
-
-  res.render("login");
-});
-
+// get single post
 router.get("/post/:id", (req, res) => {
   Post.findOne({
     where: {
@@ -101,10 +86,8 @@ router.get("/post/:id", (req, res) => {
         return;
       }
 
-      // serialize the data
       const post = dbPostData.get({ plain: true });
 
-      // pass data to template
       res.render("single-post", {
         post,
         loggedIn: req.session.loggedIn,
@@ -114,6 +97,15 @@ router.get("/post/:id", (req, res) => {
       console.log(err);
       res.status(500).json(err);
     });
+});
+
+router.get("/login", (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect("/");
+    return;
+  }
+
+  res.render("login");
 });
 
 module.exports = router;
