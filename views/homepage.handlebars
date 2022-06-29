@@ -1,0 +1,8 @@
+<ol class="post-list">
+  {{#each posts as |post|}}
+  <li>
+    {{!-- this is a way to call the partial command --}}
+    {{> post-info post }}
+  </li>
+  {{/each}}
+</ol>
